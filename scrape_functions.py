@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from standardize_flat_info import standardize_status, standardize_floor_number, str_to_float
+from standardize_flat_info import standardize_status, standardize_floor_number
 
 
 def get_developer_info(name: str, url: str) -> dict:
@@ -70,8 +70,8 @@ def get_investment_flats(investmentInfo: list, htmlData: dict) -> list:
                 'flat_name': investment['name'],
                 'floor_number': standardize_floor_number(eval(f"flat.{htmlData['floorNumber']}")),
                 'rooms_number': eval(f"flat.{htmlData['roomsAmount']}"),
-                'area': str_to_float(eval(f"flat.{htmlData['area']}")),
-                'price': str_to_float(eval(f"flat.{htmlData['price']}")),
+                'area': eval(f"flat.{htmlData['area']}") if htmlData['area'] else 'no-info',
+                'price': eval(f"flat.{htmlData['price']}") if htmlData['price'] else 'no-info',
                 'status': standardize_status(eval(f"flat.{htmlData['status']}"))
             })
     return flats

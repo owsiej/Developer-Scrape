@@ -32,3 +32,10 @@ def get_flats_info(urls=baseUrls):
         flatsList.append(temporaryList)
         sumUp.append(summarize(temporaryList))
     return flatsList, sumUp
+
+
+response = requests.get('https://www.birkbud.pl/nieruchomosci/')
+soup = BeautifulSoup(response.text, "html.parser")
+invests = soup.find_all('section', {'data-element_type': 'section'})
+print(invests)
+print(len(invests))
