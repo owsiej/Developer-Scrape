@@ -3,27 +3,28 @@ from scrape_functions import get_developer_info, get_developer_investments, get_
 developerName = 'Asko S.A.'
 baseUrl = 'https://askosa.pl/inwestycja'
 
-investmentHtmlInfo = {'investmentTag': "find_all(class_='properties__info')",
-                      'investmentName': "find(class_='properties__address-street').get_text()",
-                      'investmentLink': "a['href']"}
+investmentHtmlInfo = {'investmentTag': ".find_all(class_='properties__info')",
+                      'investmentName': ".find(class_='properties__address-street').get_text()",
+                      'investmentLink': ".a['href']"}
 
-flatsHtmlInfo = {'flatTag': "tbody.find_all('tr')",
-                 'floorNumber': "td.find_next_sibling().find_next_sibling().find_next_sibling().get_text()",
-                 'roomsAmount': "td.find_next_sibling().find_next_sibling().get_text()",
-                 'area': "td.find_next_sibling().get_text().replace('m2', '').strip()",
-                 'price': """td.find_next_sibling().find_next_sibling().find_next_sibling()\
+flatsHtmlInfo = {'flatTag': ".tbody.find_all('tr')",
+                 'floorNumber': ".td.find_next_sibling().find_next_sibling().find_next_sibling().get_text()",
+                 'roomsAmount': ".td.find_next_sibling().find_next_sibling().get_text()",
+                 'area': ".td.find_next_sibling().get_text().replace('m2', '').strip()",
+                 'price': """.td.find_next_sibling().find_next_sibling().find_next_sibling()\
 .find_next_sibling().find_next_sibling().find_next_sibling().get_text().replace('zł', '')\
 .replace(' ', '').strip()""",
-                 'status': """td.find_next_sibling().find_next_sibling().find_next_sibling()\
+                 'status': """.td.find_next_sibling().find_next_sibling().find_next_sibling()\
 .find_next_sibling().find_next_sibling().find_next_sibling().find_next_sibling().find_next_sibling().get_text()"""}
 
-developerInfo = get_developer_info(developerName, baseUrl)
+developerData = get_developer_info(developerName, baseUrl)
 
-investmentsInfo = get_developer_investments(baseUrl, investmentHtmlInfo)
+investmentsData = get_developer_investments(baseUrl, investmentHtmlInfo)
 
-flatsInfo = get_investment_flats(investmentsInfo, flatsHtmlInfo)
+flatsData = get_investment_flats(investmentsData, flatsHtmlInfo)
 
-print(developerInfo)
-print(investmentsInfo)
-for flat in flatsInfo:
+print(developerData)
+for invest in investmentsData:
+    print(invest)
+for flat in flatsData:
     print(flat)

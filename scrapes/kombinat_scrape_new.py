@@ -12,7 +12,7 @@ investmentsHtmlInfo = {'investmentTag': ".find_all(class_='covers')[0].find_all(
 investmentsInfo = get_developer_investments(baseUrl + baseTag, investmentsHtmlInfo)
 
 investmentBuildingsHtmlInfo = {'buildingTag': ".find_all(class_='button w-100', attrs={'href': re.compile(r'\B/.*')})",
-                               'buildingName': "['name']",
+                               'buildingName': "['name'] + ' ' + building.get_text().strip()",
                                'buildingLink': "['href']"}
 
 buildingsInfo = get_all_buildings_from_investment(investmentsInfo, investmentBuildingsHtmlInfo, baseUrl)

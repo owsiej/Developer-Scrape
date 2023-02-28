@@ -5,10 +5,10 @@ developerName = 'Jaz-Bud'
 baseUrl = 'https://www.jaz-bud.pl'
 cityTag = '/bialystok'
 
-investmentHtmlInfo = {'investmentTag': ".body.section.find_all('a')",
-                      'investmentName': ".get_text().split(',')[1:][0].strip(' ')",
-                      'investmentLink': "['href']"}
-investmentsInfo = get_developer_investments(baseUrl + cityTag, investmentHtmlInfo)
+investmentHtmlInfo = {'investmentTag': ".find('ul', class_='nav-child')",
+                      'investmentName': ".get_text()",
+                      'investmentLink': ".a['href']"}
+investmentsInfo = get_developer_investments(baseUrl, investmentHtmlInfo)
 
 newPageHtmlPage = {'nextPageTag': ".find('a', title='następna')",
                    'nextPageLink': "['href']"}

@@ -18,8 +18,3 @@ developerData = get_developer_info(developerName, baseUrl)
 investmentsData = investmentsInfo
 
 flatsData = get_investment_flats(investmentsInfo, flatsHtmlInfo)
-
-print(developerData)
-print(investmentsInfo)
-for flat in flatsData:
-    print(flat)
