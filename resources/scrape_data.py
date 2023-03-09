@@ -10,12 +10,15 @@ blp = Blueprint("scrape_data", __name__, description="Operations on data strict 
 
 @blp.route('/scrape')
 class ScrapeData(MethodView):
-    @blp.response(200, ScrapeSchema(many=True))
+    @blp.response(200, ScrapeSchema(many=True),
+                  description="Returns list of developers available to scrape.")
     def get(self):
         return get_developer_list_to_scrape()
 
     @blp.arguments(PlainScrapeSchema)
-    @blp.response(201, FinalResponseScrapeSchema)
+    @blp.response(201, FinalResponseScrapeSchema,
+                  description="Adds developer from scrape with investments and flats attached. If that developer "
+                              "already exists, updates it.")
     def put(self, scrape_choice):
         userChoice = scrape_choice['developer_id']
         scrape_data = get_info_from_scrape(userChoice)
