@@ -1,7 +1,7 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from schema import FlatSchema, FlatUpdateSchema, PlainFlatSchema, FlatSearchQueryByInvestment, \
-    FlatSearchQueryByDeveloper
+    FlatSearchQueryByDeveloper, FlatSearchQueryArgs
 from models import FlatModel, DeveloperModel, InvestmentModel
 from db import db
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,9 +12,11 @@ blp = Blueprint("flats", __name__, description="Operations on flats")
 
 @blp.route('/flats')
 class FlatList(MethodView):
+    @blp.arguments(FlatSearchQueryArgs, location="query")
     @blp.response(200, FlatSchema(many=True))
-    def get(self):
-        return FlatModel.query.all()
+    def get(self, search_args):
+        filters = find_filters(search_args)
+        return FlatModel.query.filter(*filters).all()
 
 
 @blp.route('/flats/<int:flatId>')

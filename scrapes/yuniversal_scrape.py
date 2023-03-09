@@ -1,4 +1,4 @@
-from scrape_functions import get_developer_info, get_developer_investments, get_investment_flats
+from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, get_investment_flats
 
 developerName = 'Yuniversal Podlaski'
 baseUrl = 'https://www.yuniversalpodlaski.pl/'
@@ -22,9 +22,9 @@ flatsHtmlInfo = {'flatTag': ".tbody.find_all('tr', class_='lokal_row')",
 
 developerData = get_developer_info(developerName, baseUrl)
 
-investmentsData = map(lambda item: {
+investmentsData = list(map(lambda item: {
     'name': item['name'],
-    'link': baseUrl + item['link']
-}, investmentsInfo)
+    'url': baseUrl + item['url']
+}, investmentsInfo))
 
 flatsData = get_investment_flats(investmentsInfo, flatsHtmlInfo, baseUrl)

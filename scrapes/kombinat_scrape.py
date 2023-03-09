@@ -1,4 +1,5 @@
-from scrape_functions import get_developer_info, get_developer_investments, get_all_buildings_from_investment, \
+from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
+    get_all_buildings_from_investment, \
     get_investment_flats
 
 developerName = 'Kombinat Budowlany'
@@ -45,9 +46,9 @@ flatsRestInfo = get_investment_flats(buildingsInfo, flatsRestHtmlInfo, baseUrl)
 
 developerData = get_developer_info(developerName, baseUrl)
 
-investmentsData = map(lambda item: {
+investmentsData = list(map(lambda item: {
     'name': item['name'],
-    'link': baseUrl + item['link']
-}, buildingsInfo)
+    'url': baseUrl + item['url']
+}, buildingsInfo))
 
 flatsData = flatsReservedInfo + flatsRestInfo

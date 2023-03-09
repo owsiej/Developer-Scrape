@@ -1,4 +1,4 @@
-from scrape_functions import get_developer_info, get_developer_investments, \
+from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
     get_all_buildings_from_investment, get_investment_flats_from_api
 
 developerName = 'Rogowski Development'
@@ -25,9 +25,9 @@ investmentsIds = get_all_buildings_from_investment(investmentsLinks, investmentB
 
 investmentsInfo = [{
     'name': invest['name'],
-    'link': "https://www.rogowskidevelopment.pl/wp-json/wp/v2/flat?filter[meta_key_value_compare]"
-            f"[stage][{invest['link']}]==&filter[meta_key_value_compare][object_type]"
-            f"[flat]==&filter[meta_key_value_compare][state][inactive]=!=&filter[posts_per_page]=-1"}
+    'url': "https://www.rogowskidevelopment.pl/wp-json/wp/v2/flat?filter[meta_key_value_compare]"
+           f"[stage][{invest['url']}]==&filter[meta_key_value_compare][object_type]"
+           f"[flat]==&filter[meta_key_value_compare][state][inactive]=!=&filter[posts_per_page]=-1"}
     for invest in investmentsIds]
 
 developerData = get_developer_info(developerName, baseUrl)

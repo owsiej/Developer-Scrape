@@ -1,4 +1,5 @@
-from scrape_functions import get_developer_info, get_developer_investments, get_investment_flats_from_api_condition
+from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
+    get_investment_flats_from_api_condition
 
 developerName = 'Rutkowski Development'
 baseUrl = 'https://rutkowskidevelopment.pl/oferta/'
@@ -13,7 +14,7 @@ investmentsInfo = get_developer_investments(baseUrl, investmentHtmlInfo)
 
 investmentsApiInfo = [{
     'name': name['name'],
-    'link': link}
+    'url': link}
     for name, link in zip(investmentsInfo, apiUrls)]
 
 flatsHtmlInfo = {'dataLocation': "['lokale']",

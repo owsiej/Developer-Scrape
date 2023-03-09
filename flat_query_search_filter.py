@@ -3,7 +3,7 @@ import re
 
 
 def set_operator_and_key(word) -> list:
-    pattern = re.compile(r"(__lt$|__gt$)")
+    pattern = re.compile(r"(__lt$|__gt$|__ne$)")
     match = pattern.search(word)
 
     if match:
@@ -13,6 +13,8 @@ def set_operator_and_key(word) -> list:
         elif match.group() == '__gt':
             return [word.replace(match.group(), ''), '>']
 
+        elif match.group() == '__ne':
+            return [word.replace(match.group(), ''), '!=']
     return [word, '=']
 
 
@@ -57,6 +59,13 @@ def find_filters(query_params):
                 filters.append(FlatModel.price == critter['value'])
         if critter['arg'] == 'status':
             if critter['operator'] == '=':
-                filters.append(FlatModel.status == critter['value'])
-
+                if critter['value'] == 'wolne':
+                    filters.append((FlatModel.status == critter['value']) | (FlatModel.status == None))
+                else:
+                    filters.append(FlatModel.status == critter['value'])
+            if critter['operator'] == '!=':
+                if critter['value'] != 'wolne':
+                    filters.append((FlatModel.status != critter['value']) | (FlatModel.status == None))
+                else:
+                    filters.append(FlatModel.status != critter['value'])
     return filters

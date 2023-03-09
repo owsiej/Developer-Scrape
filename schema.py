@@ -74,6 +74,7 @@ class FlatSearchQueryArgs(Schema):
     price__gt = fields.Float()
     price__lt = fields.Float()
     status = fields.Str()
+    status__ne = fields.Str()
 
 
 class FlatSearchQueryByInvestment(FlatSearchQueryArgs):
@@ -82,3 +83,16 @@ class FlatSearchQueryByInvestment(FlatSearchQueryArgs):
 
 class FlatSearchQueryByDeveloper(FlatSearchQueryArgs):
     developer_id = fields.Int(required=True)
+
+
+class PlainScrapeSchema(Schema):
+    developer_id = fields.Int(required=True)
+
+
+class ScrapeSchema(PlainScrapeSchema):
+    developer_name = fields.Str(required=True)
+
+
+class FinalResponseScrapeSchema(PlainDeveloperSchema):
+    investments = fields.List(fields.Nested(PlainInvestmentSchema()), dump_only=True)
+    flats = fields.List(fields.Nested(PlainFlatSchema()), dump_only=True)
