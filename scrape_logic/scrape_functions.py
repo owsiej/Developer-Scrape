@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from itertools import chain
-import standardize_flat_info as std
+import scrape_logic.standardize_flat_info as std
 import unicodedata
 import re
 
@@ -18,7 +18,7 @@ def get_developer_info(name: str, url: str) -> dict:
 
     """
     developer = {"name": name,
-                 "link": url}
+                 "url": url}
     return developer
 
 
@@ -41,7 +41,7 @@ def get_developer_investments(url, htmlData: dict) -> list:
 
     for item in data:
         developerInvestments.append({"name": eval(f"item{htmlData['investmentName']}"),
-                                     "link": eval(f"item{htmlData['investmentLink']}")})
+                                     "url": eval(f"item{htmlData['investmentLink']}")})
 
     return developerInvestments
 
@@ -62,15 +62,15 @@ def get_new_page_links(investInfo, htmlData, baseUrl=''):
     """
     investmentsFinalInfo = []
     for investment in investInfo:
-        response = requests.get(baseUrl + investment['link'])
+        response = requests.get(baseUrl + investment['url'])
         soup = BeautifulSoup(response.text, "html.parser")
         while True:
             nextPage = eval(f"soup{htmlData['nextPageTag']}")
 
             if nextPage is not None:
                 investmentsFinalInfo.append({'name': investment['name'],
-                                             'link': eval(f"nextPage{htmlData['nextPageLink']}")})
-                response = requests.get(baseUrl + investmentsFinalInfo[-1]['link'])
+                                             'url': eval(f"nextPage{htmlData['nextPageLink']}")})
+                response = requests.get(baseUrl + investmentsFinalInfo[-1]['url'])
                 soup = BeautifulSoup(response.text, "html.parser")
             else:
                 break
@@ -91,14 +91,14 @@ def get_all_buildings_from_investment(investsInfo, htmlData, baseUrl=''):
     listOfBuildings = []
 
     for investment in investsInfo:
-        response = requests.get(f"{baseUrl}{investment['link']}")
+        response = requests.get(f"{baseUrl}{investment['url']}")
         soup = BeautifulSoup(response.text, "html.parser")
 
         buildings = eval(f"soup{htmlData['buildingTag']}")
         if buildings:
             for building in buildings:
                 listOfBuildings.append({'name': eval(f"investment{htmlData['buildingName']}"),
-                                        'link': eval(f"building{htmlData['buildingLink']}")})
+                                        'url': eval(f"building{htmlData['buildingLink']}")})
         else:
             listOfBuildings.append(investment)
     return listOfBuildings
@@ -123,7 +123,7 @@ def get_investment_flats(investmentInfo: list, htmlData: dict, baseUrl='') -> li
     flats = []
 
     for investment in investmentInfo:
-        response = requests.get(f"{baseUrl}{investment['link']}")
+        response = requests.get(f"{baseUrl}{investment['url']}")
         soup = BeautifulSoup(response.text, "html.parser")
         try:
             data = eval(f"soup{htmlData['flatTag']}")
@@ -132,7 +132,7 @@ def get_investment_flats(investmentInfo: list, htmlData: dict, baseUrl='') -> li
             pass
         for flat in data:
             flats.append({
-                'flat_name': investment['name'],
+                'invest_name': investment['name'],
                 'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
                 if htmlData['floorNumber'] else None,
                 'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),
@@ -165,12 +165,12 @@ def get_investment_flats_from_api(investmentInfo: list, htmlData: dict, baseUrl=
     flats = []
 
     for investment in investmentInfo:
-        response = requests.get(f"{baseUrl}{investment['link']}")
+        response = requests.get(f"{baseUrl}{investment['url']}")
         data = response.json()
 
         for flat in data:
             flats.append({
-                'flat_name': investment['name'],
+                'invest_name': investment['name'],
                 'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
                 if htmlData['floorNumber'] else None,
                 'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),
@@ -202,13 +202,13 @@ def get_investment_flats_from_api_condition(investmentInfo, htmlData: dict) -> l
     """
     flats = []
     for investment in investmentInfo:
-        response = requests.get(f"{investment['link']}")
+        response = requests.get(f"{investment['url']}")
         data = response.json()
 
         for flat in eval(f"data{htmlData['dataLocation']}"):
             if eval(htmlData['dataCondition']):
                 flats.append({
-                    'flat_name': investment['name'],
+                    'invest_name': investment['name'],
                     'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
                     if htmlData['floorNumber'] else None,
                     'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),

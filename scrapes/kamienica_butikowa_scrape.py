@@ -1,9 +1,9 @@
-from scrape_functions import get_developer_info, get_investment_flats
+from scrape_logic.scrape_functions import get_developer_info, get_investment_flats
 
 developerName = 'Kamienica Butikowa'
 baseUrl = 'https://www.butikowa-kamienica.pl/apartamenty.html'
 
-investmentsInfo = [{'name': 'Kamienica Butikowa', 'link': 'https://www.butikowa-kamienica.pl/apartamenty.html'}]
+investmentsInfo = [{'name': 'Kamienica Butikowa', 'url': 'https://www.butikowa-kamienica.pl/apartamenty.html'}]
 
 flatsHtmlInfo = {'flatTag': ".find(class_='ps606 v31 s546').find_all('div', {'data-popup-group': '0'})",
                  'floorNumber': "",

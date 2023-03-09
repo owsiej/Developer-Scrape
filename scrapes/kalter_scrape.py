@@ -1,11 +1,11 @@
-from scrape_functions import get_developer_info, get_investment_flats
+from scrape_logic.scrape_functions import get_developer_info, get_investment_flats
 
 developerName = 'Kalter Nieruchomości'
 baseUrl = 'https://www.kalternieruchomosci.pl/pl/oferta-mieszkan'
 
-investmentsInfo = [{'name': 'Słonimska Residence', 'link': "https://www.kalternieruchomosci.pl/pl/wyniki-wyszukiwania"
-                                                           "?s_city=1&s_inwest=&s_typ=&s_status=&s_pokoje=&s_metry="
-                                                           "&s_aneks=&s_garden=0&s_deck=0&a=szukaj"}]
+investmentsInfo = [{'name': 'Słonimska Residence', 'url': "https://www.kalternieruchomosci.pl/pl/wyniki-wyszukiwania"
+                                                          "?s_city=1&s_inwest=&s_typ=&s_status=&s_pokoje=&s_metry="
+                                                          "&s_aneks=&s_garden=0&s_deck=0&a=szukaj"}]
 
 flatsHtmlInfo = {'flatTag': ".find('div', id='offerList').find_all('div', class_='col-12 col-list dostepny-list')",
                  'floorNumber': ".find('li', class_='li-inwest-rwd').span.get_text()",

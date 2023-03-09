@@ -3,6 +3,7 @@ from flask_smorest import Api
 from resources.developers import blp as DeveloperBlueprint
 from resources.investments import blp as InvestmentBlueprint
 from resources.flats import blp as FlatBlueprint
+from resources.scrape_data import blp as ScrapeBlueprint
 from db import db
 import models
 
@@ -36,5 +37,5 @@ def create_app():
     api.register_blueprint(DeveloperBlueprint)
     api.register_blueprint(InvestmentBlueprint)
     api.register_blueprint(FlatBlueprint)
-
+    api.register_blueprint(ScrapeBlueprint)
     return app

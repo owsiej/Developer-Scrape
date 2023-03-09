@@ -1,4 +1,4 @@
-from scrape_functions import get_developer_info, get_investment_flats_from_api
+from scrape_logic.scrape_functions import get_developer_info, get_investment_flats_from_api
 
 developerName = 'Panorama Park'
 baseUrl = 'http://panoramabialystok.pl/'
@@ -8,12 +8,12 @@ apiUrl = 'http://panoramabialystok.pl/wp-admin/admin-ajax.php' \
 
 investmentsInfo = [{
     'name': 'Panorama Park',
-    'link': f"{baseUrl}"
+    'url': f"{baseUrl}"
 }]
 
 investmentsApiInfo = [{
     'name': 'Panorama Park',
-    'link': f"{apiUrl}"
+    'url': f"{apiUrl}"
 }]
 
 flatsHtmlInfo = {'floorNumber': "['value']['545']",
