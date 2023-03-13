@@ -1,8 +1,9 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from schema import InvestmentSchema, InvestmentUpdateSchema
+from schema import InvestmentSchema, InvestmentUpdateSchema, InvestmentByDeveloperUpdateSchema
 from models import InvestmentModel, DeveloperModel
 from db import db
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 
 blp = Blueprint("investments", __name__, description="Operations on investments")
 
@@ -22,7 +23,7 @@ class Investment(MethodView):
     @blp.alt_response(404,
                       description="Investment not found.")
     def get(self, investmentId):
-        investment = InvestmentModel.query.get_or_404(investmentId)
+        investment = db.get_or_404(InvestmentModel, investmentId)
         return investment
 
     @blp.response(200,
@@ -31,7 +32,7 @@ class Investment(MethodView):
     @blp.alt_response(404,
                       description="Investment not found.")
     def delete(self, investmentId):
-        investment = InvestmentModel.query.get_or_404(investmentId)
+        investment = db.get_or_404(InvestmentModel, investmentId)
         db.session.delete(investment)
         db.session.commit()
         return {"message": "Investment with all flats attached deleted."}
@@ -39,24 +40,21 @@ class Investment(MethodView):
     @blp.arguments(InvestmentUpdateSchema)
     @blp.response(200, InvestmentSchema,
                   description="Returns updated investment if that investment exists.")
-    @blp.alt_response(400,
-                      description="Returned if user didn't passed all required arguments. In this case "
-                                  "investment can't be updated.",
-                      example={"message": "Invalid request. Make sure you have passed all arguments needed to update an"
-                                          "investment."})
     @blp.alt_response(404,
                       description="Investment not found.")
     @blp.alt_response(422,
                       description="Returned if user passed arguments of invalid data type. In this case "
                                   "investment can't be updated.")
     def put(self, investment_data, investmentId):
-        investment = InvestmentModel.query.get_or_404(investmentId)
+        investment = db.get_or_404(InvestmentModel, investmentId)
         try:
             investment.name = investment_data['name']
+        except KeyError:
+            pass
+        try:
             investment.url = investment_data['url']
         except KeyError:
-            abort(400, message="Invalid request. Make sure you have passed all arguments needed to update an "
-                               "investment.")
+            pass
         db.session.add(investment)
         db.session.commit()
         return investment
@@ -69,7 +67,7 @@ class InvestmentListByDeveloper(MethodView):
     @blp.alt_response(404,
                       description="Developer not found.")
     def get(self, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId)
+        developer = db.get_or_404(DeveloperModel, developerId)
         return developer.investments.all()
 
     @blp.response(200,
@@ -78,43 +76,31 @@ class InvestmentListByDeveloper(MethodView):
     @blp.alt_response(404,
                       description="Developer not found.")
     def delete(self, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId).investments.all()
+        developer = db.get_or_404(DeveloperModel, developerId).investments.all()
         for investment in developer:
             db.session.delete(investment)
         db.session.commit()
         return {"message": "All investments of chosen developer deleted."}
 
-    @blp.arguments(InvestmentUpdateSchema)
+    @blp.arguments(InvestmentByDeveloperUpdateSchema)
     @blp.response(201, InvestmentSchema,
-                  description="Updates investment of chosen developer. If that investment doesn't exists, "
-                              "adds investment to chosen developer.")
+                  description="Adds investment to chosen developer.")
     @blp.alt_response(400,
-                      description="Returned if user didn't passed all required arguments. In this case "
-                                  "investment can't be updated or added.",
-                      example={
-                          "message": "Invalid request. Make sure you have passed all arguments needed to update an "
-                                     "investment."})
+                      description="Returned if investment with requested name exists.",
+                      example={"message": "An investment with that name already exists."}, )
     @blp.alt_response(404,
                       description="Developer not found.")
     @blp.alt_response(422,
                       description="Returned if user passed arguments of invalid data type. In this case "
                                   "investment can't be updated.")
-    def put(self, investment_data, developerId):
-
+    def post(self, investment_data, developerId):
+        developer = db.get_or_404(DeveloperModel, developerId)
+        investment = InvestmentModel(**investment_data, developer_id=developer.id)
         try:
-            investment = InvestmentModel.query.filter_by(name=investment_data['name']).first()
-            if investment:
-                investment.name = investment_data['name']
-                investment.url = investment_data['url']
-            else:
-                investment = InvestmentModel(developer_id=developerId, **investment_data)
-
             db.session.add(investment)
             db.session.commit()
-            return investment
-        except KeyError:
-            abort(400,
-                  message="Invalid request. Make sure you have passed all arguments needed to update an "
-                          "investment.")
-
-
+        except IntegrityError:
+            abort(400, message="An investment with that name already exists.")
+        except SQLAlchemyError:
+            abort(500, message="An error occurred while inserting the developer.")
+        return investment

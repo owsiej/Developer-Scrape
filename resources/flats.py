@@ -31,7 +31,7 @@ class Flat(MethodView):
     @blp.alt_response(404,
                       description="Flat not found.")
     def get(self, flatId):
-        flat = FlatModel.query.get_or_404(flatId)
+        flat = db.get_or_404(FlatModel, flatId)
         return flat
 
     @blp.response(200,
@@ -40,34 +40,41 @@ class Flat(MethodView):
     @blp.alt_response(404,
                       description="Flat not found.")
     def delete(self, flatId):
-        developer = FlatModel.query.get_or_404(flatId)
-        db.session.delete(developer)
+        flat = db.get_or_404(FlatModel, flatId)
+        db.session.delete(flat)
         db.session.commit()
         return {"message": "Flat deleted."}
 
     @blp.arguments(FlatUpdateSchema)
     @blp.response(200, FlatSchema,
                   description="Returns updated flat if that flat exists.")
-    @blp.alt_response(400,
-                      description="Returned if user didn't passed all required arguments. In this case "
-                                  "flat can't be updated.",
-                      example={"message": "Invalid request. Make sure you have passed all arguments needed to update a"
-                                          "flat."})
     @blp.alt_response(404,
                       description="Flat not found.")
     @blp.alt_response(422,
                       description="Returned if user passed arguments of invalid data type. In this case "
                                   "flat can't be updated.")
     def put(self, flat_data, flatId):
-        flat = FlatModel.query.get_or_404(flatId)
+        flat = db.get_or_404(FlatModel, flatId)
         try:
             flat.floor_number = flat_data['floor_number']
+        except KeyError:
+            pass
+        try:
             flat.rooms_number = flat_data['rooms_number']
+        except KeyError:
+            pass
+        try:
             flat.area = flat_data['area']
+        except KeyError:
+            pass
+        try:
             flat.price = flat_data['price']
+        except KeyError:
+            pass
+        try:
             flat.status = flat_data['status']
         except KeyError:
-            abort(400, message="Invalid request. Make sure you have passed all arguments needed to update a flat.")
+            pass
         db.session.add(flat)
         db.session.commit()
         return flat
@@ -80,11 +87,13 @@ class FlatListByInvestment(MethodView):
                   description="Return flats from chosen investment, filtered by given parameters. If any not "
                               "supported parameter is going to be used, it will be ignored without raising any "
                               "error.")
+    @blp.alt_response(404,
+                      description="Investment not found.")
     @blp.alt_response(422,
                       description="Returned if user didn't passed required investment_id parameter or user passed "
                                   "arguments of invalid data type. In this case flats can't be displayed.")
     def get(self, search_args):
-        investment = InvestmentModel.query.filter_by(id=search_args['investment_id']).first()
+        investment = db.get_or_404(InvestmentModel, search_args['investment_id'])
         filters = find_filters(search_args)
         return investment.flats.filter(*filters).all()
 
@@ -97,7 +106,7 @@ class FlatListByInvestment(MethodView):
     @blp.alt_response(404,
                       description="Investment not found.")
     def delete(self, investmentId):
-        investment = InvestmentModel.query.get_or_404(investmentId).flats.all()
+        investment = db.get_or_404(InvestmentModel, investmentId).flats.all()
         for flat in investment:
             db.session.delete(flat)
         db.session.commit()
@@ -109,7 +118,7 @@ class FlatListByInvestment(MethodView):
     @blp.alt_response(404,
                       description="Investment not found.")
     def post(self, flat_data, investmentId):
-        investment = InvestmentModel.query.filter_by(id=investmentId).first()
+        investment = db.get_or_404(InvestmentModel, investmentId)
         flat = FlatModel(investment_id=investmentId, invest_name=investment.name,
                          developer_id=investment.developer_id, **flat_data)
         try:
@@ -127,11 +136,13 @@ class FlatListByDeveloper(MethodView):
                   description="Return flats from chosen developer, filtered by given parameters. If any not "
                               "supported parameter is going to be used, it will be ignored without raising any "
                               "error.")
+    @blp.alt_response(404,
+                      description="Developer not found.")
     @blp.alt_response(422,
                       description="Returned if user didn't passed required developer_id parameter or user passed "
                                   "arguments of invalid data type. In this case flats can't be displayed.")
     def get(self, search_args):
-        developer = DeveloperModel.query.filter_by(id=search_args['developer_id']).first()
+        developer = db.get_or_404(DeveloperModel, search_args['developer_id'])
         filters = find_filters(search_args)
         return developer.flats.filter(*filters).all()
 
@@ -144,7 +155,7 @@ class FlatListByDeveloper(MethodView):
     @blp.alt_response(404,
                       description="Investment not found.")
     def delete(self, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId).flats.all()
+        developer = db.get_or_404(DeveloperModel, developerId).flats.all()
         for flat in developer:
             db.session.delete(flat)
         db.session.commit()
