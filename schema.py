@@ -52,6 +52,10 @@ class InvestmentUpdateSchema(Schema):
     developer_id = fields.Int()
 
 
+class InvestmentByDeveloperUpdateSchema(InvestmentUpdateSchema):
+    name = fields.Str(required=True)
+
+
 class FlatUpdateSchema(Schema):
     floor_number = fields.Int()
     rooms_number = fields.Int()

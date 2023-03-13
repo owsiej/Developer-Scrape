@@ -44,7 +44,7 @@ class Developer(MethodView):
     @blp.alt_response(404,
                       description="Developer not found.")
     def get(self, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId)
+        developer = db.get_or_404(DeveloperModel, developerId)
         return developer
 
     @blp.response(200,
@@ -59,8 +59,8 @@ class Developer(MethodView):
     @blp.alt_response(404,
                       description="Developer not found.")
     def delete(self, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId)
-        if not developer.investments:
+        developer = db.get_or_404(DeveloperModel, developerId)
+        if not developer.investments.all():
             db.session.delete(developer)
             db.session.commit()
             return {"message": "Developer deleted."}
@@ -69,23 +69,21 @@ class Developer(MethodView):
     @blp.arguments(DeveloperUpdateSchema)
     @blp.response(200, DeveloperSchema,
                   description="Returns updated developer if that developer exists.")
-    @blp.alt_response(400,
-                      description="Returned if user didn't passed all required arguments. In this case "
-                                  "developer can't be updated.",
-                      example={"message": "Invalid request. Make sure you have passed all arguments needed to update a "
-                                          "developer."})
     @blp.alt_response(404,
                       description="Developer not found.")
     @blp.alt_response(422,
                       description="Returned if user passed arguments of invalid data type. In this case "
                                   "developer can't be updated.")
     def put(self, developer_data, developerId):
-        developer = DeveloperModel.query.get_or_404(developerId)
+        developer = db.get_or_404(DeveloperModel, developerId)
         try:
             developer.name = developer_data['name']
+        except KeyError:
+            pass
+        try:
             developer.url = developer_data['url']
         except KeyError:
-            abort(400, message="Invalid request. Make sure you have passed all arguments needed to update a developer.")
+            pass
         db.session.add(developer)
         db.session.commit()
         return developer
