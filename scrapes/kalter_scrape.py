@@ -1,4 +1,4 @@
-from scrape_logic.scrape_functions import get_developer_info, get_investment_flats
+from services.scrape_logic.scrape_functions import get_developer_info, get_investment_flats
 
 developerName = 'Kalter Nieruchomości'
 baseUrl = 'https://www.kalternieruchomosci.pl/pl/oferta-mieszkan'

@@ -7,3 +7,8 @@ python-dotenv
 sqlalchemy
 flask-sqlalchemy
 marshmallow
+flask-migrate
+pandas
+UliPlot
+alembic
+openpyxl

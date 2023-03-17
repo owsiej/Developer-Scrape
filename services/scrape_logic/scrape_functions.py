@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from itertools import chain
-import scrape_logic.standardize_flat_info as std
+import services.scrape_logic.standardize_flat_info as std
 import unicodedata
 import re
 
@@ -130,18 +130,20 @@ def get_investment_flats(investmentInfo: list, htmlData: dict, baseUrl='') -> li
 
         except AttributeError:
             pass
-        for flat in data:
-            flats.append({
-                'invest_name': investment['name'],
-                'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
-                if htmlData['floorNumber'] else None,
-                'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),
-                'area': std.standardize_price_and_area(eval(f"flat{htmlData['area']}")) if htmlData['area'] else None,
-                'price': std.standardize_price_and_area(
-                    unicodedata.normalize('NFKD', eval(f"flat{htmlData['price']}"))) if htmlData[
-                    'price'] else None,
-                'status': std.standardize_status(eval(f"flat{htmlData['status']}"))
-            })
+        else:
+            for flat in data:
+                flats.append({
+                    'invest_name': investment['name'],
+                    'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
+                    if htmlData['floorNumber'] else None,
+                    'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),
+                    'area': std.standardize_price_and_area(eval(f"flat{htmlData['area']}")) if htmlData[
+                        'area'] else None,
+                    'price': std.standardize_price_and_area(
+                        unicodedata.normalize('NFKD', eval(f"flat{htmlData['price']}"))) if htmlData[
+                        'price'] else None,
+                    'status': std.standardize_status(eval(f"flat{htmlData['status']}"))
+                })
 
     return flats
 

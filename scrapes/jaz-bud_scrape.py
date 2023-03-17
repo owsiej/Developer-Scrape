@@ -1,4 +1,4 @@
-from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, get_new_page_links, \
+from services.scrape_logic.scrape_functions import get_developer_info, get_developer_investments, get_new_page_links, \
     get_investment_flats
 
 developerName = 'Jaz-Bud'

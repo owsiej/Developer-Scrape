@@ -2,7 +2,7 @@ from db import db
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from schema import ScrapeSchema, PlainScrapeSchema, FinalResponseScrapeSchema
-from scrape_logic.scrape_request import get_info_from_scrape, get_developer_list_to_scrape
+from services.scrape_logic.scrape_request import get_info_from_scrape, get_developer_list_to_scrape
 from models import DeveloperModel, InvestmentModel, FlatModel
 
 blp = Blueprint("scrape_data", __name__, description="Operations on data strict from scraping.")

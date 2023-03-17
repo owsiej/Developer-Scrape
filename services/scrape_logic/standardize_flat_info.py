@@ -1,4 +1,3 @@
-
 def standardize_status(status):
     statusNamesSold = ['sprzedane', 'sold', 3]
     statusNamesFree = ['dostępne', 'free', 'wolne', 'available', 1]
@@ -47,6 +46,8 @@ def standardize_floor_number(number):
 
 
 def standardize_price_and_area(key):
+    if key == 0 or key == '0':
+        return None
     if isinstance(key, (float, int)):
         return float(key)
     try:
@@ -60,4 +61,3 @@ def standardize_rooms(key):
         return int(key)
     except ValueError:
         return None
-

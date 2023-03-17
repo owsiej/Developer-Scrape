@@ -4,9 +4,11 @@ from resources.developers import blp as DeveloperBlueprint
 from resources.investments import blp as InvestmentBlueprint
 from resources.flats import blp as FlatBlueprint
 from resources.scrape_data import blp as ScrapeBlueprint
+from resources.excel_data import blp as ExcelBlueprint
 from db import db
 import models
 import os
+from flask_migrate import Migrate
 
 
 def create_app():
@@ -24,6 +26,7 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    migrate = Migrate(app, db)
     api = Api(app)
 
     if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
@@ -33,10 +36,11 @@ def create_app():
         with app.app_context():
             from sqlalchemy import event
             event.listen(db.engine, 'connect', _fk_pragma_on_connect)
-            db.create_all()
 
     api.register_blueprint(DeveloperBlueprint)
     api.register_blueprint(InvestmentBlueprint)
     api.register_blueprint(FlatBlueprint)
     api.register_blueprint(ScrapeBlueprint)
+    api.register_blueprint(ExcelBlueprint)
+
     return app

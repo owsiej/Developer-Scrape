@@ -1,4 +1,4 @@
-from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, get_investment_flats
+from services.scrape_logic.scrape_functions import get_developer_info, get_developer_investments, get_investment_flats
 
 developerName = 'Yuniversal Podlaski'
 baseUrl = 'https://www.yuniversalpodlaski.pl/'

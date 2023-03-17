@@ -1,4 +1,4 @@
-from scrape_logic.scrape_functions import get_developer_info, get_investment_flats_from_api
+from services.scrape_logic.scrape_functions import get_developer_info, get_investment_flats_from_api
 
 developerName = 'Panorama Park'
 baseUrl = 'http://panoramabialystok.pl/'

@@ -1,4 +1,4 @@
-from scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
+from services.scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
     get_all_buildings_from_investment, \
     get_investment_flats
 

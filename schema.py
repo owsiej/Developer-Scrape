@@ -79,6 +79,7 @@ class FlatSearchQueryArgs(Schema):
     price__lt = fields.Float()
     status = fields.Str()
     status__ne = fields.Str()
+    developer_id = fields.List(fields.Int())
 
 
 class FlatSearchQueryByInvestment(FlatSearchQueryArgs):

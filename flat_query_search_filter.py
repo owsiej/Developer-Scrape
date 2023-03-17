@@ -27,45 +27,50 @@ def find_filters(query_params):
         }
         for key, value in query_params.items()
     ]
-    filters = []
+    filtersAnd = []
+    filtersOr = []
     for critter in critters:
         if critter['arg'] == 'floor_number':
             if critter['operator'] == '>':
-                filters.append(FlatModel.floor_number > critter['value'])
+                filtersAnd.append(FlatModel.floor_number > critter['value'])
             if critter['operator'] == '<':
-                filters.append(FlatModel.floor_number < critter['value'])
+                filtersAnd.append(FlatModel.floor_number < critter['value'])
             if critter['operator'] == '=':
-                filters.append(FlatModel.floor_number == critter['value'])
+                filtersAnd.append(FlatModel.floor_number == critter['value'])
         if critter['arg'] == 'rooms_number':
             if critter['operator'] == '>':
-                filters.append(FlatModel.rooms_number > critter['value'])
+                filtersAnd.append(FlatModel.rooms_number > critter['value'])
             if critter['operator'] == '<':
-                filters.append(FlatModel.rooms_number < critter['value'])
+                filtersAnd.append(FlatModel.rooms_number < critter['value'])
             if critter['operator'] == '=':
-                filters.append(FlatModel.rooms_number == critter['value'])
+                filtersAnd.append(FlatModel.rooms_number == critter['value'])
         if critter['arg'] == 'area':
             if critter['operator'] == '>':
-                filters.append(FlatModel.area > critter['value'])
+                filtersAnd.append(FlatModel.area > critter['value'])
             if critter['operator'] == '<':
-                filters.append(FlatModel.area < critter['value'])
+                filtersAnd.append(FlatModel.area < critter['value'])
             if critter['operator'] == '=':
-                filters.append(FlatModel.area == critter['value'])
+                filtersAnd.append(FlatModel.area == critter['value'])
         if critter['arg'] == 'price':
             if critter['operator'] == '>':
-                filters.append(FlatModel.price > critter['value'])
+                filtersAnd.append(FlatModel.price > critter['value'])
             if critter['operator'] == '<':
-                filters.append(FlatModel.price < critter['value'])
+                filtersAnd.append(FlatModel.price < critter['value'])
             if critter['operator'] == '=':
-                filters.append(FlatModel.price == critter['value'])
+                filtersAnd.append(FlatModel.price == critter['value'])
         if critter['arg'] == 'status':
             if critter['operator'] == '=':
                 if critter['value'] == 'wolne':
-                    filters.append((FlatModel.status == critter['value']) | (FlatModel.status == None))
+                    filtersAnd.append((FlatModel.status == critter['value']) | (FlatModel.status == None))
                 else:
-                    filters.append(FlatModel.status == critter['value'])
+                    filtersAnd.append(FlatModel.status == critter['value'])
             if critter['operator'] == '!=':
                 if critter['value'] != 'wolne':
-                    filters.append((FlatModel.status != critter['value']) | (FlatModel.status == None))
+                    filtersAnd.append((FlatModel.status != critter['value']) | (FlatModel.status == None))
                 else:
-                    filters.append(FlatModel.status != critter['value'])
-    return filters
+                    filtersAnd.append(FlatModel.status != critter['value'])
+        if critter['arg'] == 'developer_id':
+            for value in critter["value"]:
+                filtersOr.append((FlatModel.developer_id == value))
+
+    return filtersOr, filtersAnd
