@@ -1,9 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 from itertools import chain
-import services.scrape_logic.standardize_flat_info as std
+import schemas.standardize_flat_info as std
 import unicodedata
-import re
 
 
 def get_developer_info(name: str, url: str) -> dict:

@@ -1,7 +1,7 @@
 from db import db
 from flask.views import MethodView
 from flask_smorest import Blueprint
-from schema import ScrapeSchema, PlainScrapeSchema, FinalResponseScrapeSchema
+from schemas.schema import ScrapeSchema, PlainScrapeSchema, FinalResponseScrapeSchema
 from services.scrape_logic.scrape_request import get_info_from_scrape, get_developer_list_to_scrape
 from models import DeveloperModel, InvestmentModel, FlatModel
 

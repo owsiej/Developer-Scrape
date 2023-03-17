@@ -1,11 +1,11 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from schema import FlatSchema, FlatUpdateSchema, PlainFlatSchema, FlatSearchQueryByInvestment, \
+from schemas.schema import FlatSchema, FlatUpdateSchema, PlainFlatSchema, FlatSearchQueryByInvestment, \
     FlatSearchQueryByDeveloper, FlatSearchQueryArgs
 from models import FlatModel, DeveloperModel, InvestmentModel
 from db import db
 from sqlalchemy.exc import SQLAlchemyError
-from flat_query_search_filter import find_filters
+from schemas.flat_query_search_filter import find_filters
 
 blp = Blueprint("flats", __name__, description="Operations on flats")
 

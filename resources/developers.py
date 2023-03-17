@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from schema import DeveloperSchema, DeveloperUpdateSchema
+from schemas.schema import DeveloperSchema, DeveloperUpdateSchema
 from models import DeveloperModel
 from db import db
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError

@@ -1,10 +1,10 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask import send_file
-from schema import FlatSearchQueryArgs
+from schemas.schema import FlatSearchQueryArgs
 from models import FlatModel, DeveloperModel
 from db import db
-from flat_query_search_filter import find_filters
+from schemas.flat_query_search_filter import find_filters
 from itertools import groupby
 from services.data_to_excel.create_excel import create_memory_excel_file
 from sqlalchemy import or_
