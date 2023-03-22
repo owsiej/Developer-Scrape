@@ -82,20 +82,26 @@ class FlatSearchQueryArgs(Schema):
     developer_id = fields.List(fields.Int())
 
 
-class FlatSearchQueryByInvestment(FlatSearchQueryArgs):
+class FlatSearchQueryByInvestment(Schema):
+    floor_number = fields.Int()
+    floor_number__gt = fields.Int()
+    floor_number__lt = fields.Int()
+    rooms_number = fields.Int()
+    rooms_number__gt = fields.Int()
+    rooms_number__lt = fields.Int()
+    area = fields.Float()
+    area__gt = fields.Float()
+    area__lt = fields.Float()
+    price = fields.Float()
+    price__gt = fields.Float()
+    price__lt = fields.Float()
+    status = fields.Str()
+    status__ne = fields.Str()
     investment_id = fields.Int(required=True)
-
-
-class FlatSearchQueryByDeveloper(FlatSearchQueryArgs):
-    developer_id = fields.Int(required=True)
 
 
 class PlainScrapeSchema(Schema):
     developer_id = fields.Int(required=True)
-
-
-class ScrapeSchema(PlainScrapeSchema):
-    developer_name = fields.Str(required=True)
 
 
 class FinalResponseScrapeSchema(PlainDeveloperSchema):

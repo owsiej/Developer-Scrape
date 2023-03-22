@@ -1,7 +1,9 @@
-from db import db
 from flask.views import MethodView
-from flask_smorest import Blueprint
-from schemas.schema import ScrapeSchema, PlainScrapeSchema, FinalResponseScrapeSchema
+from flask_smorest import Blueprint, abort
+from flask_jwt_extended import jwt_required
+
+from db import db
+from schemas.schema import PlainScrapeSchema, FinalResponseScrapeSchema
 from services.scrape_logic.scrape_request import get_info_from_scrape, get_developer_list_to_scrape
 from models import DeveloperModel, InvestmentModel, FlatModel
 
@@ -10,19 +12,27 @@ blp = Blueprint("scrape_data", __name__, description="Operations on data strict 
 
 @blp.route('/scrape')
 class ScrapeData(MethodView):
-    @blp.response(200, ScrapeSchema(many=True),
+    @jwt_required(fresh=True)
+    @blp.response(200,
                   description="Returns list of developers available to scrape.")
     def get(self):
         return get_developer_list_to_scrape()
 
+    @jwt_required(fresh=True)
     @blp.arguments(PlainScrapeSchema)
     @blp.response(201, FinalResponseScrapeSchema,
                   description="Adds developer from scrape with investments and flats attached. If that developer "
                               "already exists, updates it.")
+    @blp.alt_response(404,
+                      description="Developer not found.")
     def put(self, scrape_choice):
         userChoice = scrape_choice['developer_id']
-        scrape_data = get_info_from_scrape(userChoice)
+        try:
+            scrape_data = get_info_from_scrape(userChoice)
+        except IndexError:
+            abort(404, message="Developer not found.")
         developer_data = DeveloperModel.query.filter_by(name=scrape_data[0]['name']).first()
+
         if developer_data:
             developerInvestments = developer_data.investments.all()
             for developerInvestment in developerInvestments:

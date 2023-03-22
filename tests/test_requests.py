@@ -1,6 +1,10 @@
 import os
+import fakeredis
+from unittest.mock import patch
 
 os.environ['DATABASE_URL'] = 'sqlite://'
+redis_patch = patch('blocklist.BLOCKLIST', fakeredis.FakeStrictRedis())
+redis_patch.start()
 
 import unittest
 from app import create_app, db
@@ -77,6 +81,7 @@ class FlaskAppTest(unittest.TestCase):
         db.create_all()
         self.add_data_to_database()
         self.client = self.app.test_client()
+        self.create_user()
 
     def tearDown(self) -> None:
         db.drop_all()
@@ -98,6 +103,26 @@ class FlaskAppTest(unittest.TestCase):
             flat = FlatModel(**flat_data)
             db.session.add(flat)
         db.session.commit()
+
+    def create_user(self):
+        self.client.post("/register", json={
+            "username": "Owsiej",
+            "password": "Zenek123!"
+        })
+
+    def get_fresh_access_token(self):
+        response = self.client.post("/login", json={
+            "username": "Owsiej",
+            "password": "Zenek123!"
+        })
+        return response.json['access_token']
+
+    def get_refresh_access_token(self):
+        response = self.client.post("/login", json={
+            "username": "Owsiej",
+            "password": "Zenek123!"
+        })
+        return response.json['refresh_token']
 
     def test_get_developer_list(self):
         response = self.client.get('/developers')
@@ -381,31 +406,6 @@ class FlaskAppTest(unittest.TestCase):
         })
         self.assertEqual(response_third.status_code, 404)
 
-    def test_get_from_all_flats_from_developer_by_query_string(self):
-        response = self.client.get("/developers/flats", query_string={"developer_id": 1,
-                                                                      })
-        self.assertEqual(len(response.json), 4)
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, list)
-
-        response_second = self.client.get("/developers/flats", query_string={"developer_id": 1,
-                                                                             "area__lt": 50
-                                                                             })
-        self.assertEqual(len(response_second.json), 3)
-        self.assertIsInstance(response.json, list)
-
-        response_third = self.client.get("/developers/flats", query_string={"area__lt": 50,
-                                                                            "floor_number__lt": 5
-                                                                            })
-        self.assertEqual(response_third.status_code, 422)
-
-        response_forth = self.client.get("/developers/flats", query_string={"developer_id": 1,
-                                                                            "rooms_number": 3,
-                                                                            "floor_number": "three",
-                                                                            "price": "million"
-                                                                            })
-        self.assertEqual(response_forth.status_code, 422)
-
     def test_delete_flats_by_developer_id(self):
         response_first = self.client.delete("/developers/1/flats")
         self.assertEqual(response_first.status_code, 200)
@@ -417,26 +417,130 @@ class FlaskAppTest(unittest.TestCase):
         self.assertEqual(response_second.status_code, 404)
 
     def test_get_developers_from_scrape(self):
-        os.chdir("C:/Users/owsie/PycharmProjects/Developer-Scrape")
-        response = self.client.get("/scrape")
-        self.assertEqual(response.status_code, 200)
-        self.assertIsInstance(response.json, list)
+        token = self.get_fresh_access_token()
+        refresh_token = self.get_refresh_access_token()
+        os.chdir(self.app.root_path)
 
+        response_first = self.client.get("/scrape",
+                                         headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response_first.status_code, 200)
+        self.assertIsInstance(response_first.json, list)
+
+        response_second = self.client.post("/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+        response_third = self.client.get("/scrape",
+                                         headers={"Authorization": f"Bearer {response_second.json['access_token']}"})
+        self.assertEqual(response_third.json['message'], "The token is not fresh.")
+
+    #
     def test_put_developers_from_scrape(self):
-        os.chdir("C:/Users/owsie/PycharmProjects/Developer-Scrape")
-        response_first = self.client.put("/scrape", json={
-            "developer_id": 1
-        })
+        token = self.get_fresh_access_token()
+        refresh_token = self.get_refresh_access_token()
+
+        os.chdir(self.app.root_path)
+        response_first = self.client.put("/scrape", json={"developer_id": 1},
+                                         headers={"Authorization": f"Bearer {token}"})
         self.assertEqual(response_first.status_code, 201)
         self.assertIsInstance(response_first.json, dict)
         self.assertEqual(len(DeveloperModel.query.all()), 2)
 
-        response_second = self.client.put("/scrape", json={
-            "developer_id": 1
-        })
+        response_second = self.client.put("/scrape", json={"developer_id": 1},
+                                          headers={"Authorization": f"Bearer {token}"})
         self.assertEqual(response_second.status_code, 201)
         self.assertIsInstance(response_second.json, dict)
         self.assertEqual(len(DeveloperModel.query.all()), 2)
+
+        response_third = self.client.post("/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+        response_forth = self.client.get("/scrape",
+                                         headers={"Authorization": f"Bearer {response_third.json['access_token']}"})
+        self.assertEqual(response_forth.json['message'], "The token is not fresh.")
+
+    def test_get_excel_file(self):
+        token = self.get_fresh_access_token()
+        response = self.client.get("/flats_to_excel", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response.mimetype, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        self.assertEqual(response.status_code, 200)
+
+    def test_register_user(self):
+        response_first = self.client.post("/register", json={"username": "Owsiej12",
+                                                             "password": "Haslo123!"})
+        self.assertEqual(response_first.status_code, 201)
+        self.assertEqual(response_first.json, {"message": "User created successfully."})
+
+        response_second = self.client.post("/register", json={"username": "Owsiej12",
+                                                              "password": "Haslo123!"})
+        self.assertEqual(response_second.status_code, 409)
+        self.assertEqual(response_second.json['message'], 'An user with that username already exists.')
+
+        response_third = self.client.post("/register", json={"username": "Owsiej1!",
+                                                             "password": "Haslo123!"})
+        self.assertEqual(response_third.status_code, 422)
+        self.assertEqual(response_third.json['errors']['json']['username'][0],
+                         'Login can have a maximum 8 chars with no special chars available.')
+
+        response_forth = self.client.post("/register", json={"username": "Owsiej1",
+                                                             "password": "haslo123!"})
+        self.assertEqual(response_forth.json['errors']['json']['password'][0],
+                         "Password must have 6 to 15 characters with at least one capital letter, one small letter, "
+                         "one number and one special character.")
+
+        response_fifth = self.client.post("/register", json={"username": "Owsiej12"})
+        self.assertEqual(response_fifth.status_code, 422)
+        self.assertEqual(response_fifth.json['errors']['json']['password'][0], 'Missing data for required field.')
+
+    def test_get_user_by_id(self):
+        response = self.client.get("/user/1")
+        self.assertEqual(response.json['username'], "Owsiej")
+
+    def test_delete_user_by_id(self):
+        token = self.get_fresh_access_token()
+        refresh_token = self.get_refresh_access_token()
+
+        response_first = self.client.post("/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+        response_second = self.client.delete("/user/1",
+                                             headers={"Authorization": f"Bearer {response_first.json['access_token']}"})
+        self.assertEqual(response_second.json['message'], "The token is not fresh.")
+
+        response_third = self.client.delete("/user/1")
+        self.assertEqual(response_third.json['message'], "Request must contain an access token")
+
+        response_forth = self.client.delete("/user/1", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response_forth.status_code, 200)
+
+        response_fifth = self.client.get("/user/1")
+        self.assertEqual(response_fifth.status_code, 404)
+
+    def test_user_login(self):
+        response_first = self.client.post("/login", json={
+            "username": "Owsiej",
+            "password": "Zenek123!"
+        })
+        self.assertEqual(response_first.status_code, 200)
+        self.assertTrue(response_first.json["access_token"])
+        self.assertTrue(response_first.json["refresh_token"])
+
+        response_second = self.client.post("/login", json={
+            "username": "Owsiej",
+            "password": "Zenek12312!"
+        })
+        self.assertEqual(response_second.json['message'], "Invalid credentials.")
+
+    def test_token_refresh(self):
+        token = self.get_fresh_access_token()
+        refresh_token = self.get_refresh_access_token()
+
+        response_first = self.client.post("/refresh", headers={"Authorization": f"Bearer {refresh_token}"})
+        self.assertTrue(response_first.json['access_token'])
+
+        response_second = self.client.post("/refresh", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response_second.json['message'], "Invalid token.")
+
+    def test_user_logout(self):
+        token = self.get_fresh_access_token()
+        response_first = self.client.post("/logout", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response_first.json['message'], "Logged out.")
+
+        response_second = self.client.post("/logout", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response_second.json['message'], "The token has been revoked.")
 
     if __name__ == "__main__":
         unittest.main()
