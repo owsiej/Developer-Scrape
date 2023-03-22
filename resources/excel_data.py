@@ -1,19 +1,22 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint
 from flask import send_file
+from sqlalchemy import or_, false
+from itertools import groupby
+from flask_jwt_extended import jwt_required
+
 from schemas.schema import FlatSearchQueryArgs
 from models import FlatModel, DeveloperModel
 from db import db
 from schemas.flat_query_search_filter import find_filters
-from itertools import groupby
 from services.data_to_excel.create_excel import create_memory_excel_file
-from sqlalchemy import or_
 
 blp = Blueprint("data_to_excel", __name__, description="Saving flats data to an Excel file.")
 
 
 @blp.route('/flats_to_excel')
 class FlatList(MethodView):
+    @jwt_required()
     @blp.arguments(FlatSearchQueryArgs, location="query")
     @blp.response(200,
                   description="Returns list of flats of given parameters in an Excel file. If any not supported "
@@ -24,7 +27,10 @@ class FlatList(MethodView):
     def get(self, search_args):
         filters = find_filters(search_args)
 
-        data = FlatModel.query.filter(or_(*filters[0])).filter(*filters[1]).all()
+        if FlatModel.query.filter(or_(false(), *filters[0])).all():
+            data = FlatModel.query.filter(or_(false(), *filters[0])).filter(*filters[1]).all()
+        else:
+            data = FlatModel.query.filter(*filters[1]).all()
 
         flats = [dict(filter(lambda x: not x[0].startswith("_"), flat.__dict__.items()))
                  for flat in data]

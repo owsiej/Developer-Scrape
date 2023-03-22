@@ -12,3 +12,7 @@ pandas
 UliPlot
 alembic
 openpyxl
+flask-jwt-extended
+passlib
+redis
+fakeredis

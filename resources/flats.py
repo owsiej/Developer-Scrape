@@ -1,10 +1,12 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import or_, false
+
 from schemas.schema import FlatSchema, FlatUpdateSchema, PlainFlatSchema, FlatSearchQueryByInvestment, \
-    FlatSearchQueryByDeveloper, FlatSearchQueryArgs
+    FlatSearchQueryArgs
 from models import FlatModel, DeveloperModel, InvestmentModel
 from db import db
-from sqlalchemy.exc import SQLAlchemyError
 from schemas.flat_query_search_filter import find_filters
 
 blp = Blueprint("flats", __name__, description="Operations on flats")
@@ -21,7 +23,9 @@ class FlatList(MethodView):
                                   "flats won't be searched.")
     def get(self, search_args):
         filters = find_filters(search_args)
-        return FlatModel.query.filter(*filters).all()
+        if FlatModel.query.filter(or_(false(), *filters[0])).all():
+            return FlatModel.query.filter(or_(false(), *filters[0])).filter(*filters[1]).all()
+        return FlatModel.query.filter(*filters[1]).all()
 
 
 @blp.route('/flats/<int:flatId>')
@@ -95,7 +99,7 @@ class FlatListByInvestment(MethodView):
     def get(self, search_args):
         investment = db.get_or_404(InvestmentModel, search_args['investment_id'])
         filters = find_filters(search_args)
-        return investment.flats.filter(*filters).all()
+        return investment.flats.filter(*filters[1]).all()
 
 
 @blp.route('/investments/<int:investmentId>/flats')
@@ -127,24 +131,6 @@ class FlatListByInvestment(MethodView):
         except SQLAlchemyError:
             abort(500, message="An error occurred while inserting the flat.")
         return flat
-
-
-@blp.route('/developers/flats')
-class FlatListByDeveloper(MethodView):
-    @blp.arguments(FlatSearchQueryByDeveloper, location="query")
-    @blp.response(200, FlatSchema(many=True),
-                  description="Return flats from chosen developer, filtered by given parameters. If any not "
-                              "supported parameter is going to be used, it will be ignored without raising any "
-                              "error.")
-    @blp.alt_response(404,
-                      description="Developer not found.")
-    @blp.alt_response(422,
-                      description="Returned if user didn't passed required developer_id parameter or user passed "
-                                  "arguments of invalid data type. In this case flats can't be displayed.")
-    def get(self, search_args):
-        developer = db.get_or_404(DeveloperModel, search_args['developer_id'])
-        filters = find_filters(search_args)
-        return developer.flats.filter(*filters).all()
 
 
 @blp.route('/developers/<int:developerId>/flats')

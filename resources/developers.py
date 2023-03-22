@@ -13,6 +13,7 @@ class DeveloperList(MethodView):
     @blp.response(200, DeveloperSchema(many=True),
                   description="Returns list of all developers in database.")
     def get(self):
+
         return DeveloperModel.query.all()
 
     @blp.arguments(DeveloperSchema)
