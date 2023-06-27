@@ -16,3 +16,4 @@ flask-jwt-extended
 passlib
 redis
 fakeredis
+selenium

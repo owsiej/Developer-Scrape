@@ -14,3 +14,11 @@ services:
     container_name: redis
     ports:
       - 6379:6379
+  chrome:
+    image: selenium/standalone-chrome:latest
+    container_name: chrome_driver
+    ports:
+      - 4444:4444
+    hostname: chrome
+    privileged: true
+    shm_size: 2g

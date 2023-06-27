@@ -5,7 +5,7 @@ baseUrl = 'https://www.butikowa-kamienica.pl/apartamenty.html'
 
 investmentsInfo = [{'name': 'Kamienica Butikowa', 'url': 'https://www.butikowa-kamienica.pl/apartamenty.html'}]
 
-flatsHtmlInfo = {'flatTag': ".find(class_='ps606 v31 s546').find_all('div', {'data-popup-group': '0'})",
+flatsHtmlInfo = {'flatTag': ".find(class_='ps550 v37 s481').find_all('div', {'data-popup-group': '0'})",
                  'floorNumber': "",
                  'roomsAmount': ".p.find_next_sibling().get_text().split()[2]",
                  'area': ".p.find_next_sibling().find_next_sibling().get_text().split()[1]"
