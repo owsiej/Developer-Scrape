@@ -1,8 +1,11 @@
+import re
+
+
 def standardize_status(status):
     statusNamesSold = ['sprzedane', 'sold', 3]
     statusNamesFree = ['dostępne', 'free', 'wolne', 'available', 1]
     statusNamesReserved = ['rezerwacja', 'reserved',
-                           'mieszkanie jest zarezerwowane. prosimy o kontakt z działem sprzedaży.', 2]
+                           'mieszkanie jest zarezerwowane. prosimy o kontakt z działem sprzedaży.', 2, "zarezerwowane"]
 
     try:
         if status.lower() in statusNamesSold:
@@ -29,6 +32,8 @@ def standardize_floor_number(number):
         else:
             return None
     except (ValueError, TypeError):
+        if re.fullmatch(r"^<span>\d{1,}</span>?", str(number)):
+            return int(re.search(r"\d{1,2}", str(number)).group())
         if number.lower() == 'parter':
             return 0
         if 'i' in number.lower().strip(' '):

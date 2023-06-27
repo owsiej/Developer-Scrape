@@ -36,7 +36,6 @@ class FlatList(MethodView):
                  for flat in data]
         sorted_flats_by_developer = [{db.get_or_404(DeveloperModel, x).name: list(y)}
                                      for x, y in groupby(flats, lambda z: z["developer_id"])]
-
         excelFile = create_memory_excel_file(sorted_flats_by_developer)
         return send_file(excelFile,
                          mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

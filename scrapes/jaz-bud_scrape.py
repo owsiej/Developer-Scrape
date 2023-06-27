@@ -6,7 +6,7 @@ developerName = 'Jaz-Bud'
 baseUrl = 'https://www.jaz-bud.pl'
 cityTag = '/bialystok'
 
-investmentHtmlInfo = {'investmentTag': ".find('ul', class_='nav-child')",
+investmentHtmlInfo = {'investmentTag': ".find('ul', class_='uk-nav uk-navbar-dropdown-nav').find_all('li')",
                       'investmentName': ".get_text()",
                       'investmentLink': ".a['href']"}
 investmentsInfo = get_developer_investments(baseUrl, investmentHtmlInfo)
@@ -15,19 +15,13 @@ newPageHtmlPage = {'nextPageTag': ".find('a', title='następna')",
                    'nextPageLink': "['href']"}
 
 investmentsFinalInfo = get_new_page_links(investmentsInfo, newPageHtmlPage, baseUrl)
-
 flatsHtmlInfo = {'flatTag': ".tbody.find_all('tr')",
-                 'floorNumber': ".find(class_='fa fa-search').find_parent().find_parent()"
-                                ".find_previous_sibling().find_previous_sibling().find_previous_sibling().get_text()",
-                 'roomsAmount': ".find(class_='fa fa-search').find_parent().find_parent()"
-                                ".find_previous_sibling().find_previous_sibling().get_text()",
-                 'area': ".find(class_='fa fa-search').find_parent().find_parent().find_previous_sibling()"
-                         ".find_previous_sibling().find_previous_sibling().find_previous_sibling().get_text()"
-                         ".replace('m2', '').replace(',', '.').strip()",
-                 'price': ".find(class_='fa fa-search').find_parent().find_parent()"
-                          ".find_previous_sibling().get_text().replace('zł', '').strip().replace(' ','')",
+                 'floorNumber': ".find_all('td')[3].span",
+                 'roomsAmount': ".find_all('td')[4].span.get_text()",
+                 'area': ".find_all('td')[2].span.get_text().replace('m2','')",
+                 'price': ".find_all('td')[5].div.get_text().strip().replace('zł','')",
                  'status': ""}
-
+#
 developerData = get_developer_info(developerName, baseUrl)
 
 investmentsData = list(map(lambda item: {
