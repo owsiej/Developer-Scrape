@@ -1,5 +1,5 @@
 from itertools import chain
-
+import time
 from services.scrape_logic.scrape_functions import get_developer_info, get_developer_investments, \
     get_all_buildings_from_investment, get_investment_flats_from_api
 
@@ -46,5 +46,7 @@ investmentsInfo = [{
 developerData = get_developer_info(developerName, baseUrl)
 
 investmentsData = allBuildingsInInvestments
+start_time = time.time()
 
 flatsData = get_investment_flats_from_api(investmentsInfo, flatsHtmlInfo)
+print(f"{(time.time() - start_time):.2f}")

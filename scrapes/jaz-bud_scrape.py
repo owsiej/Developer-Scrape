@@ -16,10 +16,10 @@ newPageHtmlPage = {'nextPageTag': ".find('a', title='następna')",
 
 investmentsFinalInfo = get_new_page_links(investmentsInfo, newPageHtmlPage, baseUrl)
 flatsHtmlInfo = {'flatTag': ".tbody.find_all('tr')",
-                 'floorNumber': ".find_all('td')[3].span",
-                 'roomsAmount': ".find_all('td')[4].span.get_text()",
-                 'area': ".find_all('td')[2].span.get_text().replace('m2','')",
-                 'price': ".find_all('td')[5].div.get_text().strip().replace('zł','')",
+                 'floorNumber': ".find('td', {'data-order':re.compile('^piętro')}).span.get_text(strip=True) if flat.find('td', {'data-order':re.compile('^piętro')}) else None",
+                 'roomsAmount': ".find('td', {'data-order':re.compile('^pokoje')}).span.get_text(strip=True)  if flat.find('td', {'data-order':re.compile('^pokoje')}) else None",
+                 'area': ".find('td', {'data-order':re.compile('^powierzchnia')}).span.get_text(strip=True).replace('m2','')  if flat.find('td', {'data-order':re.compile('^powierzchnia')}) else None",
+                 'price': ".find('td', {'data-order':re.compile('^[0-9]')}).div.get_text(strip=True).replace('zł', '') if flat.find('td', {'data-order':re.compile('^[0-9]')}) else None",
                  'status': ""}
 #
 developerData = get_developer_info(developerName, baseUrl)
@@ -30,3 +30,6 @@ investmentsData = list(map(lambda item: {
 }, investmentsInfo))
 
 flatsData = get_investment_flats(investmentsFinalInfo, flatsHtmlInfo, baseUrl)
+
+for flat in flatsData:
+    print(flat)

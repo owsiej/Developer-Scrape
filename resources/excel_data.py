@@ -34,8 +34,9 @@ class FlatList(MethodView):
 
         flats = [dict(filter(lambda x: not x[0].startswith("_"), flat.__dict__.items()))
                  for flat in data]
-        sorted_flats_by_developer = [{db.get_or_404(DeveloperModel, x).name: list(y)}
-                                     for x, y in groupby(flats, lambda z: z["developer_id"])]
+        sorted_flats_by_developer = sorted([{db.get_or_404(DeveloperModel, x).name: list(y)}
+                                            for x, y in groupby(flats, lambda z: z["developer_id"])],
+                                           key=lambda d: list(d.keys()))
         excelFile = create_memory_excel_file(sorted_flats_by_developer)
         return send_file(excelFile,
                          mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

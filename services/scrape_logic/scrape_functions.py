@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from itertools import chain
 import schemas.standardize_flat_info as std
 import unicodedata
+import time
 import re
 
 
@@ -126,6 +127,7 @@ def get_investment_flats(investmentInfo: list, htmlData: dict, baseUrl='') -> li
     for investment in investmentInfo:
         response = requests.get(f"{baseUrl}{investment['url']}", headers=headers)
         soup = BeautifulSoup(response.text, "html.parser")
+        print(response.url)
         try:
             data = eval(f"soup{htmlData['flatTag']}")
         except AttributeError:
@@ -136,7 +138,8 @@ def get_investment_flats(investmentInfo: list, htmlData: dict, baseUrl='') -> li
                     'invest_name': investment['name'],
                     'floor_number': std.standardize_floor_number(eval(f"flat{htmlData['floorNumber']}"))
                     if htmlData['floorNumber'] else None,
-                    'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")),
+                    'rooms_number': std.standardize_rooms(eval(f"flat{htmlData['roomsAmount']}")) if htmlData[
+                        'roomsAmount'] else None,
                     'area': std.standardize_price_and_area(eval(f"flat{htmlData['area']}")) if htmlData[
                         'area'] else None,
                     'price': std.standardize_price_and_area(
@@ -182,7 +185,6 @@ def get_investment_flats_from_api(investmentInfo: list, htmlData: dict, baseUrl=
                     'price'] else None,
                 'status': std.standardize_status(eval(f"flat{htmlData['status']}"))
             })
-
     return flats
 
 

@@ -32,7 +32,7 @@ class Locators:
 
     RETURN_TO_MAIN_PAGE_BUTTON = (By.XPATH, '//*[@id="top"]/header/div/div/div/div[2]/span/a/img')
 
-    FLATS_DATA = (By.XPATH, '/html/body/script[19]')
+    FLATS_DATA = (By.XPATH, '/html/body/script[23]')
 
     COOKIE = {
         "name": "cookie_notice_accepted",
@@ -123,7 +123,7 @@ class ScrapePages(HomePage):
             "name": invest.get_attribute("innerHTML"),
             "url": invest.get_attribute('href')
         }
-            for invest in self.driver.find_elements(*Locators.INVESTMENTS_DATA)[:-2]]
+            for invest in self.driver.find_elements(*Locators.INVESTMENTS_DATA)[:-3]]
         return investments
 
     def click_floor_button_and_save_number(self, floorButton):

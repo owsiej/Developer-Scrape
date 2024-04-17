@@ -57,12 +57,12 @@ def standardize_price_and_area(key):
         return float(key)
     try:
         return float(key.replace(" ", ''))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, AttributeError):
         return None
 
 
 def standardize_rooms(key):
     try:
         return int(key)
-    except ValueError:
+    except (ValueError, TypeError):
         return None
